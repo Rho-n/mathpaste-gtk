@@ -39,6 +39,13 @@ MENU_XML = """
 </interface>
 """
 
+HEADER_xml = """
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+
+</interface>
+"""
+
 MATHPASTE_URL = 'https://purplemyst.github.io/mathpaste/'
 
 
@@ -95,6 +102,18 @@ class MathpasteApplication(Gtk.Application):
             self.window = MathpasteWindow(application=self,
                                           title="MathPaste GTK")
             self.window.set_default_size(800, 600)
+
+        headerbar = Gtk.HeaderBar()
+        headerbar.set_show_close_button(True)
+        self.window.set_titlebar(headerbar)
+
+        self.zoom_level= 1
+
+        scale =  Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, 1, 2, 0.1)
+        scale.connect("value-changed", self.zoom_view)
+        scale.set_hexpand(True)
+        headerbar.pack_start(scale)
+
         self.window.show_all()
         self.window.present()
 
@@ -115,6 +134,11 @@ class MathpasteApplication(Gtk.Application):
         dialog.add_filter(filter)
 
         return dialog
+
+    def zoom_view(self, range):
+        print(range.list_style_properties())
+        self.zoom_level = range.get_value()
+        self.window.webview.set_zoom_level(self.zoom_level)
 
     def on_open(self, action, param):
         dialog = self._create_dialog("Open Math", Gtk.FileChooserAction.OPEN,
